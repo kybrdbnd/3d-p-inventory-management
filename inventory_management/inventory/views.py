@@ -1,9 +1,10 @@
 from flask import render_template, request, jsonify
 
 from inventory_management.inventory import inventory
-from inventory_management.inventory.controller.costingController import estimate_cost, get_variants_array, get_figures, \
-    get_filaments, get_filament_categories
-from inventory_management.inventory.forms import CostEstimation, QueryForm
+from inventory_management.inventory.controller.queryController import (estimate_cost,
+                                                                       get_filaments, get_filament_categories,
+                                                                       save_query)
+from inventory_management.inventory.forms import QueryForm
 from inventory_management.inventory.models import Figure, FilamentCategory, Filament
 from inventory_management.inventory.schema import filaments_schema
 
@@ -30,7 +31,6 @@ def query_create():
         action = request.form.get('action')
         filamentCategoryId = request.form.get('filament_category')
         form.filament_color.choices = get_filaments(FilamentCategory.query.get(filamentCategoryId))
-
         if action == 'cost':
             filament = Filament.query.get(request.form.get('filament_color'))
             pricePerGram = filament.price_per_gram
@@ -39,3 +39,6 @@ def query_create():
                 'estimated_cost': estimatedCost,
                 'price_per_gram': pricePerGram
             })
+        if action == 'save':
+            save_query(request.form)
+            return render_template('query.html', form=form)

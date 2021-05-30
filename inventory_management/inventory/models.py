@@ -1,5 +1,6 @@
 import enum
 import random
+from datetime import datetime
 
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
@@ -116,6 +117,7 @@ class Query(db.Model):
     def __init__(self, **kwargs):
         super(Query, self).__init__(**kwargs)
         self.query_id = random.randint(40, 20000)
+        self.created_on = datetime.now()
 
     def __repr__(self):
         return str(self.query_id)
