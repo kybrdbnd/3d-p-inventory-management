@@ -1,0 +1,80 @@
+{% extends "navbar.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<div class="container">
+    <form class="form" action="/cost" method="post" role="form">
+        {{form.csrf_token()}}
+        <div class="row">
+            <div class="form-group col-md-4">
+                {{wtf.form_field(form.figure_name, class='form-control', placeholder='Your Figure')}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-3">
+                {{wtf.form_field(form.filament_category, class='form-control', placeholder='Category')}}
+            </div>
+            <div class="form-group col-md-3">
+                {{wtf.form_field(form.filament_color, class='form-control', placeholder='Color')}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-3">
+                {{wtf.form_field(form.material_used, class='form-control', placeholder='Material Used')}}
+            </div>
+            <div class="form-group col-md-3">
+                {{wtf.form_field(form.hour, class='form-control', placeholder='Time')}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-3">
+                {{wtf.form_field(form.variant, class='form-control', placeholder='Variant')}}
+            </div>
+            <div class="form-group col-md-3">
+                {{wtf.form_field(form.x_axis, class='form-control', placeholder='Length')}}
+            </div>
+            <div class="form-group col-md-3">
+                {{wtf.form_field(form.y_axis, class='form-control', placeholder='Breadth')}}
+            </div>
+            <div class="form-group col-md-3">
+                {{wtf.form_field(form.z_axis, class='form-control', placeholder='Height')}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-md-6">
+                {{wtf.form_field(form.comment, class='form-control', placeholder='Remarks')}}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Calculate Cost</button>
+<!--        <button type="submit" class="btn btn-primary">Save</button>-->
+
+
+    </form>
+
+    {% if estimatedCost %}
+    <h3>
+        Estimated Cost of the product is: {{estimatedCost}}
+    </h3>
+    {% endif %}
+
+</div>
+<script>
+    let figure_select = document.getElementById('figure')
+    let variant_select = document.getElementById('variant')
+
+    figure_select.onchange = function () {
+        figure = figure_select.value;
+        fetch('/' + figure + '/variants').then(function (response) {
+            response.json().then(function (data) {
+                let optionHTML = '';
+                for (let variant of data) {
+                    optionHTML += '<option value="' + variant.id + '">' + variant.type + '</option>';
+                }
+                variant_select.innerHTML = optionHTML;
+            })
+        });
+    }
+
+</script>
+{% endblock %}
