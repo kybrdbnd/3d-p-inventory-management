@@ -5,16 +5,36 @@
 <div class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/">PL</a>
+            <a class="navbar-brand" href="{{url_for('inventory_bp.home')}}">PL</a>
         </div>
         <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
-            <li><a href="#">Query</a></li>
+            <li {% if page=='home' %}class="active" {% endif %}>
+                <a href="{{url_for('inventory_bp.home')}}">Home</a></li>
+            <li {% if page=='query' %}class="active" {% endif %}>
+                <a href="{{url_for('inventory_bp.query_home')}}">Query</a></li>
             <li><a href="#">Page 2</a></li>
             <li><a href="#">Page 3</a></li>
         </ul>
     </div>
 </div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{category}} alert-dismissable" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{ message }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
 {% endblock %}
 
 {% block content %}

@@ -3,62 +3,73 @@
 
 {% block content %}
 <div class="container">
-    <form class="form" action="/query/create" method="post" role="form">
-        {{form.csrf_token()}}
-        <div class="row">
-            <div class="form-group col-md-4">
-                {{wtf.form_field(form.figure_name, class='form-control', placeholder='Your Figure')}}
+    {% if QUERY_ID %}
+    <form class="form" action="/query/{{QUERY_ID}}" method="post" role="form">
+        {% else %}
+        <form class="form" action="/query/create" method="post" role="form">
+            {% endif %}
+            {{form.csrf_token()}}
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{wtf.form_field(form.figure_name, class='form-control', placeholder='Your Figure')}}
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-md-3">
-                {{wtf.form_field(form.filament_category, class='form-control', placeholder='Category')}}
+            <div class="row">
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.filament_category, class='form-control', placeholder='Category')}}
+                </div>
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.filament_color, class='form-control', placeholder='Color')}}
+                </div>
             </div>
-            <div class="form-group col-md-3">
-                {{wtf.form_field(form.filament_color, class='form-control', placeholder='Color')}}
+            <div class="row">
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.material_used, class='form-control', placeholder='Material Used')}}
+                </div>
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.hour, class='form-control', placeholder='Time')}}
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-md-3">
-                {{wtf.form_field(form.material_used, class='form-control', placeholder='Material Used')}}
+            <div class="row">
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.variant, class='form-control', placeholder='Variant')}}
+                </div>
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.x_axis, class='form-control', placeholder='Length')}}
+                </div>
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.y_axis, class='form-control', placeholder='Breadth')}}
+                </div>
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.z_axis, class='form-control', placeholder='Height')}}
+                </div>
             </div>
-            <div class="form-group col-md-3">
-                {{wtf.form_field(form.hour, class='form-control', placeholder='Time')}}
+            <div class="row">
+                <div class="form-group col-md-6">
+                    {{wtf.form_field(form.comment, class='form-control', placeholder='Remarks')}}
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-md-3">
-                {{wtf.form_field(form.variant, class='form-control', placeholder='Variant')}}
-            </div>
-            <div class="form-group col-md-3">
-                {{wtf.form_field(form.x_axis, class='form-control', placeholder='Length')}}
-            </div>
-            <div class="form-group col-md-3">
-                {{wtf.form_field(form.y_axis, class='form-control', placeholder='Breadth')}}
-            </div>
-            <div class="form-group col-md-3">
-                {{wtf.form_field(form.z_axis, class='form-control', placeholder='Height')}}
-            </div>
-        </div>
-        <div class="row">
-            <div class="form-group col-md-6">
-                {{wtf.form_field(form.comment, class='form-control', placeholder='Remarks')}}
-            </div>
-        </div>
-        <button type="submit" name='action' value='save' class="btn btn-primary">Save</button>
-        <button type="submit" name='action' value='cost' class="btn btn-primary">Calculate Cost</button>
+            {% if QUERY_ID %}
+            <button type="submit" name='action' value='update' class="btn btn-primary">Update</button>
+            <a href="{{url_for('inventory_bp.query_home')}}" class="btn btn-primary">
+                Back
+            </a>
+            {% else %}
+            <button type="submit" name='action' value='save' class="btn btn-primary">Save</button>
+            {% endif %}
+            <button type="submit" name='action' value='cost' class="btn btn-primary">Calculate Cost</button>
 
 
-    </form>
+        </form>
 
-    {% if data %}
-    <h3>
-        Estimated Cost of the product is: {{data['estimated_cost']}}
-    </h3>
-    <h3>
-        Price Per Gram is: {{data['price_per_gram']}}
-    </h3>
-    {% endif %}
+        {% if data %}
+        <h3>
+            Estimated Cost of the product is: {{data['estimated_cost']}}
+        </h3>
+        <h3>
+            Price Per Gram is: {{data['price_per_gram']}}
+        </h3>
+        {% endif %}
 
 </div>
 <script>

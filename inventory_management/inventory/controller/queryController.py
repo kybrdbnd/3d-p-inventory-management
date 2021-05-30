@@ -40,7 +40,7 @@ def get_figures():
     return figuresArray
 
 
-def save_query(form):
+def save_query(form, query_no=None):
     name = form.get('figure_name')
     filamentCategory = FilamentCategory.query.get(form.get('filament_category')).name
     filamentColor = Filament.query.get(form.get('filament_color')).name
@@ -58,6 +58,7 @@ def save_query(form):
                     variant: {
                         'material_used': materialUsed,
                         'time_taken': hour,
+                        'comments': comment,
                         'dimensions': {
                             'x_axis': x_axis,
                             'y_axis': y_axis,
@@ -68,8 +69,20 @@ def save_query(form):
             }
         }
     }
-    query_instance = Query(name=name, comment=comment, extras=extras)
-    db.session.add(query_instance)
+    if query_no is None:
+        queryInstance = Query(name=name, comment=comment, extras=extras)
+        db.session.add(queryInstance)
+    else:
+        queryInstance = Query.query.filter_by(query_id=query_no).first()
+        queryInstance.name = name
+        queryInstance.comment = comment
+        queryInstance.extras = extras
+    db.session.commit()
+    return queryInstance.query_id
+
+
+def delete_query(instance):
+    db.session.delete(instance)
     db.session.commit()
 
 
