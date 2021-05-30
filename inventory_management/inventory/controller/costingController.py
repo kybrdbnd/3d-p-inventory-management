@@ -1,15 +1,11 @@
-from inventory_management.inventory.models import Filament, Figure
+from inventory_management.inventory.models import Filament, Figure, FilamentCategory
 
 
-def estimate_cost(filamentId, hours, material_estimated, figureId, variantId):
-    filament = Filament.query.get(filamentId)
-    if material_estimated != '':
-        cost = (int(filament.price_per_gram) * int(material_estimated)) + (int(hours) * 20)
-    else:
-        figure = Figure.query.get(figureId)
-        variants = figure.extras['variants']
-        variant = list(filter(lambda x: x['id'] == int(variantId), variants))[0]
-        cost = (int(filament.price_per_gram) * variant['material']) + (int(hours) * 20)
+def estimate_cost(form):
+    filament = Filament.query.get(form.get('filament_color'))
+    materialUsed = int(form.get('material_used'))
+    time = int(form.get('hour'))
+    cost = (filament.price_per_gram * materialUsed) + (time * 20)
     return cost
 
 
@@ -20,12 +16,19 @@ def get_variants_array(variants):
     return variantsArray
 
 
-def get_filaments():
-    filamentArray = []
-    filaments = Filament.query.all()
-    for filament in filaments:
-        filamentArray.append((filament.id, filament.name))
+def get_filaments(category=None):
+    if category is None:
+        filaments = Filament.query.all()
+    else:
+        filaments = category.filaments
+    filamentArray = [(fil.id, fil.name) for fil in filaments]
     return filamentArray
+
+
+def get_filament_categories():
+    filamentCategories = FilamentCategory.query.order_by('name').all()
+    filamentCategoryArray = [(cat.id, cat.name) for cat in filamentCategories]
+    return filamentCategoryArray
 
 
 def get_figures():

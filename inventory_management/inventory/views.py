@@ -2,9 +2,10 @@ from flask import render_template, request, jsonify
 
 from inventory_management.inventory import inventory
 from inventory_management.inventory.controller.costingController import estimate_cost, get_variants_array, get_figures, \
-    get_filaments
+    get_filaments, get_filament_categories
 from inventory_management.inventory.forms import CostEstimation, QueryForm
-from inventory_management.inventory.models import Figure
+from inventory_management.inventory.models import Figure, FilamentCategory, Filament
+from inventory_management.inventory.schema import filaments_schema
 
 
 @inventory.route('/')
@@ -12,35 +13,29 @@ def home():
     return render_template('home.html')
 
 
-@inventory.route('/cost', methods=['GET', 'POST'])
-def cost():
-    form = CostEstimation()
-    form.figure.choices = get_figures()
-    form.filament.choices = get_filaments()
-    if request.method == 'GET':
-        firstFigure = Figure.query.order_by('name').first()
-        form.variant.choices = get_variants_array(firstFigure.extras['variants'])  # this is the default variant
-        return render_template('cost.html', form=form)
-    elif request.method == 'POST':
-        filamentId = request.form.get('filament')
-        materialUsed = request.form.get('material_used', None)
-        hour = request.form.get('hour')
-        figureId = request.form.get('figure')
-        variant = request.form.get('variant')
-        figure = Figure.query.get(figureId)
-        form.variant.choices = get_variants_array(figure.extras['variants'])  # this is the default variant
-        estimatedCost = estimate_cost(filamentId, hour, materialUsed, figureId, variant)
-        return render_template('cost.html', form=form, estimatedCost=estimatedCost)
+@inventory.route('/<filament_category_id>/filaments')
+def get_filament_colors(filament_category_id):
+    filamentCategory = FilamentCategory.query.get(filament_category_id)
+    return jsonify(filaments_schema.dump(filamentCategory.filaments))
 
 
-@inventory.route('/<figureId>/variants')
-def get_variants(figureId):
-    figure = Figure.query.get(figureId)
-    variants = figure.extras['variants']
-    return jsonify(variants)
-
-
-@inventory.route('/query/create')
+@inventory.route('/query/create', methods=['GET', 'POST'])
 def query_create():
     form = QueryForm()
-    return render_template('query.html', form=form)
+    form.filament_category.choices = get_filament_categories()
+    form.filament_color.choices = get_filaments(FilamentCategory.query.order_by('name').first())
+    if request.method == 'GET':
+        return render_template('query.html', form=form)
+    elif request.method == 'POST':
+        action = request.form.get('action')
+        filamentCategoryId = request.form.get('filament_category')
+        form.filament_color.choices = get_filaments(FilamentCategory.query.get(filamentCategoryId))
+
+        if action == 'cost':
+            filament = Filament.query.get(request.form.get('filament_color'))
+            pricePerGram = filament.price_per_gram
+            estimatedCost = estimate_cost(request.form)
+            return render_template('query.html', form=form, data={
+                'estimated_cost': estimatedCost,
+                'price_per_gram': pricePerGram
+            })
