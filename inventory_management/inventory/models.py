@@ -12,16 +12,17 @@ class Category(db.Model):
     __tablename__ = 'categories'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
+    figures = db.relationship('Figure', backref='category', lazy=True)
 
     def __repr__(self):
         return self.name
 
 
-class FilamentCategory(db.Model):
-    __tablename__ = 'filament_categories'
+class FilamentType(db.Model):
+    __tablename__ = 'filament_types'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
-    filaments = db.relationship('Filament', backref='filament_category', lazy=True)
+    filaments = db.relationship('Filament', backref='filament_type', lazy=True)
 
     def __repr__(self):
         return self.name
@@ -31,7 +32,7 @@ class Filament(db.Model):
     __tablename__ = 'filaments'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
-    filament_category_id = db.Column(db.Integer, db.ForeignKey('filament_categories.id'))
+    filament_type_id = db.Column(db.Integer, db.ForeignKey('filament_types.id'))
     price_per_gram = db.Column(db.Integer)
 
     def __repr__(self):
@@ -42,8 +43,8 @@ class Figure(db.Model):
     __tablename__ = 'figures'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
-    count = db.Column(db.Integer, default=0)
     extras = db.Column(MutableDict.as_mutable(JSONB))
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     items = db.relationship('Item', backref='figure', lazy=True)
 
     def __repr__(self):

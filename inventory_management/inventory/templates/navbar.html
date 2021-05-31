@@ -12,8 +12,9 @@
                 <a href="{{url_for('inventory_bp.home')}}">Home</a></li>
             <li {% if page=='query' %}class="active" {% endif %}>
                 <a href="{{url_for('inventory_bp.query_home')}}">Query</a></li>
-            <li><a href="#">Page 2</a></li>
-            <li><a href="#">Page 3</a></li>
+            <li {% if page=='category' %}class="active" {% endif %}>
+                <a href="{{url_for('inventory_bp.categories_home')}}">Category/Figure</a></li>
+            <li><a href="#">Filament Type/Colors</a></li>
         </ul>
     </div>
 </div>

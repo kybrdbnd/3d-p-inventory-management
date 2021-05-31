@@ -1,5 +1,5 @@
 from inventory_management import db
-from inventory_management.inventory.models import Filament, Figure, FilamentCategory, Query
+from inventory_management.inventory.models import Filament, Figure, FilamentType, Query
 
 
 def estimate_cost(form):
@@ -27,9 +27,9 @@ def get_filaments(category=None):
 
 
 def get_filament_categories():
-    filamentCategories = FilamentCategory.query.order_by('name').all()
-    filamentCategoryArray = [(cat.id, cat.name) for cat in filamentCategories]
-    return filamentCategoryArray
+    filamentTypes = FilamentType.query.order_by('name').all()
+    filamentTypesArray = [(cat.id, cat.name) for cat in filamentTypes]
+    return filamentTypesArray
 
 
 def get_figures():
@@ -42,7 +42,7 @@ def get_figures():
 
 def save_query(form, query_no=None):
     name = form.get('figure_name')
-    filamentCategory = FilamentCategory.query.get(form.get('filament_category')).name
+    filamentType = FilamentType.query.get(form.get('filament_type')).name
     filamentColor = Filament.query.get(form.get('filament_color')).name
     materialUsed = form.get('material_used')
     hour = form.get('hour')
@@ -52,7 +52,7 @@ def save_query(form, query_no=None):
     z_axis = form.get('z_axis')
     comment = form.get('comment')
     extras = {
-        filamentCategory: {
+        filamentType: {
             filamentColor: {
                 'variants': {
                     variant: {

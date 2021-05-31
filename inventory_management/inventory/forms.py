@@ -14,3 +14,11 @@ class QueryForm(FlaskForm):
     y_axis = IntegerField('Breadth of the product')
     z_axis = IntegerField('Height of the product')
     comment = TextAreaField('Extra Comments', render_kw={"rows": 5, "cols": 50})
+
+
+class CategoryForm(FlaskForm):
+    category_name = StringField('Name of the category', [DataRequired()])
+
+
+class FilamentTypeForm(FlaskForm):
+    filament_type_name = StringField('Name of the filament type', [DataRequired()])
