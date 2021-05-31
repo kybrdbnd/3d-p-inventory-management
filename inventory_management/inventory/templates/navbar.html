@@ -14,7 +14,8 @@
                 <a href="{{url_for('inventory_bp.query_home')}}">Query</a></li>
             <li {% if page=='category' %}class="active" {% endif %}>
                 <a href="{{url_for('inventory_bp.categories_home')}}">Category/Figure</a></li>
-            <li><a href="#">Filament Type/Colors</a></li>
+            <li {% if page=='filament' %}class="active" {% endif %}>
+                <a href="{{url_for('inventory_bp.filament_home')}}">Filament Type/Colors</a></li>
         </ul>
     </div>
 </div>

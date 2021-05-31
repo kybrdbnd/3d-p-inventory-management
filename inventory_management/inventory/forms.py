@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired
 
 
 class QueryForm(FlaskForm):
-    filament_category = SelectField('Choose Filament Type', choices=[])
+    filament_type = SelectField('Choose Filament Type', choices=[])
     filament_color = SelectField('Choose Color', choices=[])
     figure_name = StringField('Name of the figure', [DataRequired()])
     material_used = IntegerField('Estimated material to be used')

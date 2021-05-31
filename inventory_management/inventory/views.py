@@ -4,10 +4,12 @@ from sqlalchemy import desc
 from inventory_management.inventory import inventory
 from inventory_management.inventory.controller.categoryController import (create_category, update_category,
                                                                           delete_category)
+from inventory_management.inventory.controller.filamentController import (create_filament_type, delete_filament_type,
+                                                                          update_filament_type)
 from inventory_management.inventory.controller.queryController import (estimate_cost,
-                                                                       get_filaments, get_filament_categories,
+                                                                       get_filaments, get_filament_types,
                                                                        save_query, delete_query)
-from inventory_management.inventory.forms import QueryForm, CategoryForm
+from inventory_management.inventory.forms import QueryForm, CategoryForm, FilamentTypeForm
 from inventory_management.inventory.models import FilamentType, Filament, Query, Category
 from inventory_management.inventory.schema import filaments_schema, category_schema
 
@@ -26,7 +28,7 @@ def get_filament_colors(filament_type_id):
 @inventory.route('/query/create', methods=['GET', 'POST'])
 def query_create():
     form = QueryForm()
-    form.filament_type.choices = get_filament_categories()
+    form.filament_type.choices = get_filament_types()
     form.filament_color.choices = get_filaments(FilamentType.query.order_by('name').first())
     if request.method == 'GET':
         return render_template('query.html', form=form, page='query')
@@ -61,7 +63,7 @@ def query_edit(query_no):
     form.figure_name.data = customerQuery.name
     for category, values in customerQuery.extras.items():
         filamentType = FilamentType.query.filter_by(name=category).first()
-        form.filament_type.choices = get_filament_categories()
+        form.filament_type.choices = get_filament_types()
         form.filament_type.data = str(filamentType.id)
         for color, colorValues in values.items():
             filamentColors = get_filaments(filamentType)
@@ -143,3 +145,40 @@ def category_delete(category_id):
         delete_category(categoryInstance)
         flash('Category Successfully deleted!!', 'success')
     return redirect(url_for('inventory_bp.categories_home'))
+
+
+@inventory.route('/filament_types', methods=['GET'])
+def filament_home():
+    filamentTypes = FilamentType.query.order_by('name').all()
+    return render_template('filament_home.html', filamentTypes=filamentTypes, page='filament')
+
+
+@inventory.route('/filament_type/<filament_type_id>', methods=['GET', 'POST'])
+def filament_type_edit(filament_type_id):
+    filamentType = FilamentType.query.get(filament_type_id)
+    form = FilamentTypeForm()
+    form.filament_type_name.data = filamentType.name
+    if request.method == 'POST':
+        update_filament_type(filament_type_id, request.form)
+        form.filament_type_name.data = filamentType.name
+        flash('filament type updated successfully!!', 'success')
+    return render_template('filament_edit.html', form=form, FILAMENT_TYPE_ID=filamentType.id, page='filament')
+
+
+@inventory.route('/filament_type/create', methods=['GET', 'POST'])
+def filament_type_create():
+    form = FilamentTypeForm()
+    if request.method == 'POST':
+        filamentTypeName = create_filament_type(request.form)
+        flash(f'Filament type {filamentTypeName} created successfully!!', 'success')
+        return redirect(url_for('inventory_bp.filament_home'))
+    return render_template('filament_edit.html', form=form, page='filament')
+
+
+@inventory.route('/filament_type/<filament_type_id>/delete', methods=['POST'])
+def filament_type_delete(filament_type_id):
+    if request.method == 'POST':
+        filamentTypeInstance = FilamentType.query.get(filament_type_id)
+        delete_filament_type(filamentTypeInstance)
+        flash('Filament Type Successfully deleted!!', 'success')
+    return redirect(url_for('inventory_bp.filament_home'))

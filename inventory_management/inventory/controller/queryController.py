@@ -26,7 +26,7 @@ def get_filaments(category=None):
     return filamentArray
 
 
-def get_filament_categories():
+def get_filament_types():
     filamentTypes = FilamentType.query.order_by('name').all()
     filamentTypesArray = [(cat.id, cat.name) for cat in filamentTypes]
     return filamentTypesArray
