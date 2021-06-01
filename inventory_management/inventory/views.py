@@ -5,11 +5,12 @@ from inventory_management.inventory import inventory
 from inventory_management.inventory.controller.categoryController import (create_category, update_category,
                                                                           delete_category)
 from inventory_management.inventory.controller.filamentController import (create_filament_type, delete_filament_type,
-                                                                          update_filament_type)
+                                                                          update_filament_type, create_filament_color,
+                                                                          update_filament_color, delete_filament_color)
 from inventory_management.inventory.controller.queryController import (estimate_cost,
                                                                        get_filaments, get_filament_types,
                                                                        save_query, delete_query)
-from inventory_management.inventory.forms import QueryForm, CategoryForm, FilamentTypeForm
+from inventory_management.inventory.forms import QueryForm, CategoryForm, FilamentTypeForm, FilamentColorForm
 from inventory_management.inventory.models import FilamentType, Filament, Query, Category
 from inventory_management.inventory.schema import filaments_schema, category_schema
 
@@ -150,7 +151,9 @@ def category_delete(category_id):
 @inventory.route('/filament_types', methods=['GET'])
 def filament_home():
     filamentTypes = FilamentType.query.order_by('name').all()
-    return render_template('filament_home.html', filamentTypes=filamentTypes, page='filament')
+    filamentColors = Filament.query.order_by('name').all()
+    return render_template('filament_home.html', filamentTypes=filamentTypes, filamentColors=filamentColors,
+                           page='filament')
 
 
 @inventory.route('/filament_type/<filament_type_id>', methods=['GET', 'POST'])
@@ -181,4 +184,42 @@ def filament_type_delete(filament_type_id):
         filamentTypeInstance = FilamentType.query.get(filament_type_id)
         delete_filament_type(filamentTypeInstance)
         flash('Filament Type Successfully deleted!!', 'success')
+    return redirect(url_for('inventory_bp.filament_home'))
+
+
+@inventory.route('/filament_color/create', methods=['GET', 'POST'])
+def filament_color_create():
+    form = FilamentColorForm()
+    form.filament_type.choices = get_filament_types()
+    if request.method == 'POST':
+        create_filament_color(request.form)
+        flash('Filament color created successfully', 'success')
+        return redirect(url_for('inventory_bp.filament_home'))
+    return render_template('filament_color_edit.html', form=form, page='filament')
+
+
+@inventory.route('/filament_color/<filament_color_id>', methods=['GET', 'POST'])
+def filament_color_edit(filament_color_id):
+    filamentInstance = Filament.query.get(filament_color_id)
+    form = FilamentColorForm()
+    filamentTypes = get_filament_types()
+    form.filament_type.choices = filamentTypes
+    form.price_per_gram.data = filamentInstance.price_per_gram
+    form.filament_type.data = str(filamentInstance.filament_type.id)
+    form.filament_color.data = filamentInstance.name
+    if request.method == 'POST':
+        update_filament_color(filament_color_id, request.form)
+        form.filament_color.data = filamentInstance.name
+        form.filament_type.data = str(filamentInstance.filament_type.id)
+        flash('filament color updated successfully!!', 'success')
+    return render_template('filament_color_edit.html', form=form, FILAMENT_COLOR_ID=filamentInstance.id,
+                           page='filament')
+
+
+@inventory.route('/filament_color/<filament_color_id>/delete', methods=['POST'])
+def filament_color_delete(filament_color_id):
+    if request.method == 'POST':
+        filamentColorInstance = Filament.query.get(filament_color_id)
+        delete_filament_color(filamentColorInstance)
+        flash('Filament Color Successfully deleted!!', 'success')
     return redirect(url_for('inventory_bp.filament_home'))

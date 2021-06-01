@@ -22,3 +22,9 @@ class CategoryForm(FlaskForm):
 
 class FilamentTypeForm(FlaskForm):
     filament_type_name = StringField('Name of the filament type', [DataRequired()])
+
+
+class FilamentColorForm(FlaskForm):
+    filament_color = StringField('Name of the filament color', [DataRequired()])
+    price_per_gram = IntegerField('Price per gram', [DataRequired()])
+    filament_type = SelectField('Choose Filament Type', choices=[])
