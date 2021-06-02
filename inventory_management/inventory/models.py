@@ -23,6 +23,7 @@ class FilamentType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(), nullable=False)
     filaments = db.relationship('Filament', backref='filament_type', lazy=True)
+    variants = db.relationship('Variant', backref='filament_type', lazy=True)
 
     def __repr__(self):
         return self.name
@@ -34,6 +35,7 @@ class Filament(db.Model):
     name = db.Column(db.String(), nullable=False)
     filament_type_id = db.Column(db.Integer, db.ForeignKey('filament_types.id'))
     price_per_gram = db.Column(db.Integer)
+    variants = db.relationship('Variant', backref='filament_color', lazy=True)
 
     def __repr__(self):
         return self.name
@@ -42,13 +44,19 @@ class Filament(db.Model):
 class Figure(db.Model):
     __tablename__ = 'figures'
     id = db.Column(db.Integer, primary_key=True)
+    figure_no = db.Column(db.Integer)
     name = db.Column(db.String(), nullable=False)
     extras = db.Column(MutableDict.as_mutable(JSONB))
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     items = db.relationship('Item', backref='figure', lazy=True)
+    variants = db.relationship('Variant', backref='figure', lazy=True)
 
     def __repr__(self):
         return self.name
+
+    def __init__(self, **kwargs):
+        super(Figure, self).__init__(**kwargs)
+        self.figure_no = random.randint(100, 4000)
 
 
 class Customer(db.Model):
@@ -122,6 +130,22 @@ class Query(db.Model):
 
     def __repr__(self):
         return str(self.query_id)
+
+
+class Variant(db.Model):
+    __tablename__ = 'variants'
+    id = db.Column(db.Integer, primary_key=True)
+    size = db.Column(db.String())
+    filament_type_id = db.Column(db.Integer, db.ForeignKey('filament_types.id'))
+    filament_color_id = db.Column(db.Integer, db.ForeignKey('filaments.id'))
+    price = db.Column(db.Integer)
+    count = db.Column(db.Integer)
+    figure_id = db.Column(db.Integer, db.ForeignKey('figures.id'))
+    comments = db.Column(db.Text())
+    dimensions = db.Column(MutableDict.as_mutable(JSONB))
+
+    def __repr__(self):
+        return self.size
 
 
 if __name__ == '__main__':

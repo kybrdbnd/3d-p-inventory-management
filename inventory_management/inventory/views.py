@@ -3,14 +3,16 @@ from sqlalchemy import desc
 
 from inventory_management.inventory import inventory
 from inventory_management.inventory.controller.categoryController import (create_category, update_category,
-                                                                          delete_category)
+                                                                          delete_category, get_categories,
+                                                                          create_figure)
 from inventory_management.inventory.controller.filamentController import (create_filament_type, delete_filament_type,
                                                                           update_filament_type, create_filament_color,
                                                                           update_filament_color, delete_filament_color)
 from inventory_management.inventory.controller.queryController import (estimate_cost,
                                                                        get_filaments, get_filament_types,
                                                                        save_query, delete_query)
-from inventory_management.inventory.forms import QueryForm, CategoryForm, FilamentTypeForm, FilamentColorForm
+from inventory_management.inventory.forms import QueryForm, CategoryForm, FilamentTypeForm, FilamentColorForm, \
+    FigureForm
 from inventory_management.inventory.models import FilamentType, Filament, Query, Category
 from inventory_management.inventory.schema import filaments_schema, category_schema
 
@@ -223,3 +225,14 @@ def filament_color_delete(filament_color_id):
         delete_filament_color(filamentColorInstance)
         flash('Filament Color Successfully deleted!!', 'success')
     return redirect(url_for('inventory_bp.filament_home'))
+
+
+@inventory.route('/figure/create', methods=['GET', 'POST'])
+def figure_create():
+    form = FigureForm()
+    # form.category.choices = get_categories()
+    # form.filament_type.choices = get_filament_types()
+    # form.filament_color.choices = get_filaments(FilamentType.query.order_by('name').first())
+    if request.method == 'POST':
+        create_figure(request.form)
+    return render_template('figure_edit.html', form=form, page='category')
