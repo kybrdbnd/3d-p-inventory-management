@@ -1,0 +1,82 @@
+{% extends "navbar.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<div class="container">
+    {% if VARIANT_ID %}
+    <form class="form" action="/figure/{{FIGURE_ID}}/variant/{{VARIANT_ID}}" method="post" role="form">
+        {% else %}
+        <form class="form" action="{{url_for('inventory_bp.variant_create', figure_id=FIGURE_ID)}}" method="post"
+              role="form">
+            {% endif %}
+            {{form.csrf_token()}}
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{wtf.form_field(form.figure_name, class='form-control', placeholder='Figure Name')}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{wtf.form_field(form.filament_type, class='form-control', placeholder='Figure Name')}}
+                </div>
+                <div class="form-group col-md-4">
+                    {{wtf.form_field(form.filament_color, class='form-control', placeholder='Figure Name')}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.figure_size, class='form-control', placeholder='Figure Name')}}
+                </div>
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.x_axis, class='form-control', placeholder='Figure Name')}}
+                </div>
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.y_axis, class='form-control', placeholder='Figure Name')}}
+                </div>
+                <div class="form-group col-md-3">
+                    {{wtf.form_field(form.z_axis, class='form-control', placeholder='Figure Name')}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{wtf.form_field(form.price, class='form-control', placeholder='Figure Name')}}
+                </div>
+                <div class="form-group col-md-4">
+                    {{wtf.form_field(form.count, class='form-control', placeholder='Figure Name')}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-4">
+                    {{wtf.form_field(form.comment, class='form-control', placeholder='Figure Name')}}
+                </div>
+            </div>
+            {% if VARIANT_ID %}
+            <button type="submit" name='action' value='update' class="btn btn-primary">Update</button>
+            {% else %}
+            <button type="submit" name='action' value='save' class="btn btn-primary">Save</button>
+            {% endif %}
+            <a href="{{url_for('inventory_bp.categories_home')}}" class="btn btn-primary">
+                Back
+            </a>
+        </form>
+    </form>
+</div>
+<script>
+    let filament_type_select = document.getElementById('filament_type')
+    let color_select = document.getElementById('filament_color')
+
+    filament_type_select.onchange = function () {
+        let filament_type = filament_type_select.value;
+        fetch('/' + filament_type + '/filaments').then(function (response) {
+            response.json().then(function (data) {
+                let optionHTML = '';
+                for (let filament of data) {
+                    optionHTML += '<option value="' + filament.id + '">' + filament.name + '</option>';
+                }
+                color_select.innerHTML = optionHTML;
+            })
+        });
+    }
+
+</script>
+{% endblock %}

@@ -4,16 +4,17 @@ from sqlalchemy import desc
 from inventory_management.inventory import inventory
 from inventory_management.inventory.controller.categoryController import (create_category, update_category,
                                                                           delete_category, get_categories,
-                                                                          create_figure)
+                                                                          create_figure, create_variant, update_variant,
+                                                                          delete_figure, delete_variant)
 from inventory_management.inventory.controller.filamentController import (create_filament_type, delete_filament_type,
                                                                           update_filament_type, create_filament_color,
                                                                           update_filament_color, delete_filament_color)
 from inventory_management.inventory.controller.queryController import (estimate_cost,
                                                                        get_filaments, get_filament_types,
-                                                                       save_query, delete_query)
+                                                                       save_query, delete_query, get_figures)
 from inventory_management.inventory.forms import QueryForm, CategoryForm, FilamentTypeForm, FilamentColorForm, \
-    FigureForm
-from inventory_management.inventory.models import FilamentType, Filament, Query, Category
+    FigureForm, VariantForm
+from inventory_management.inventory.models import FilamentType, Filament, Query, Category, Variant, Figure
 from inventory_management.inventory.schema import filaments_schema, category_schema
 
 
@@ -116,7 +117,8 @@ def delete_query_instance(query_no):
 @inventory.route('/categories', methods=['GET'])
 def categories_home():
     categories = Category.query.order_by('name').all()
-    return render_template('categories_home.html', categories=categories, page='category')
+    figures = Figure.query.order_by('name').all()
+    return render_template('categories_home.html', categories=categories, figures=figures, page='category')
 
 
 @inventory.route('/categories/<category_id>', methods=['GET', 'POST'])
@@ -230,9 +232,69 @@ def filament_color_delete(filament_color_id):
 @inventory.route('/figure/create', methods=['GET', 'POST'])
 def figure_create():
     form = FigureForm()
-    # form.category.choices = get_categories()
-    # form.filament_type.choices = get_filament_types()
-    # form.filament_color.choices = get_filaments(FilamentType.query.order_by('name').first())
+    form.category.choices = get_categories()
     if request.method == 'POST':
         create_figure(request.form)
+        flash('figure created successfully', 'success')
+        return redirect(url_for('inventory_bp.categories_home'))
     return render_template('figure_edit.html', form=form, page='category')
+
+
+@inventory.route('/figure/<figure_id>/delete', methods=['POST'])
+def figure_delete(figure_id):
+    figureInstance = Figure.query.get(figure_id)
+    delete_figure(figureInstance)
+    flash('figure successfully deleted', 'success')
+    return redirect(url_for('inventory_bp.categories_home'))
+
+
+@inventory.route('/figure/<figure_id>/variant/create', methods=['GET', 'POST'])
+def variant_create(figure_id):
+    form = VariantForm()
+    form.figure_name.choices = get_figures()
+    form.figure_name.data = str(figure_id)
+    form.filament_type.choices = get_filament_types()
+    form.filament_color.choices = get_filaments(FilamentType.query.order_by('name').first())
+    if request.method == 'POST':
+        create_variant(request.form, figure_id)
+        flash('variant created successfully', 'success')
+        return redirect(url_for('inventory_bp.categories_home'))
+    return render_template('variant_edit.html', form=form, page='category', FIGURE_ID=figure_id)
+
+
+@inventory.route('/figure/<figure_id>/variant/<variant_id>', methods=['GET', 'POST'])
+def variant_edit(figure_id, variant_id):
+    form = VariantForm()
+    form.figure_name.choices = get_figures()
+    form.figure_name.data = str(figure_id)
+    variantInstance = Variant.query.get(variant_id)
+    form.filament_type.choices = get_filament_types()
+    form.filament_type.data = str(variantInstance.filament_type)
+    form.filament_color.choices = [(color['id'], color['name']) for color in
+                                   get_filament_colors(variantInstance.filament_type.id).json]
+    form.figure_size.data = variantInstance.size
+    form.price.data = variantInstance.price
+    form.count.data = variantInstance.count
+    form.comment.data = variantInstance.comments
+    dimensions = variantInstance.dimensions
+    form.x_axis.data = dimensions['x_axis']
+    form.y_axis.data = dimensions['y_axis']
+    form.z_axis.data = dimensions['z_axis']
+    if request.method == 'POST':
+        update_variant(request.form, variant_id)
+        form = VariantForm(request.form)
+        form.figure_name.choices = get_figures()
+        form.filament_type.choices = get_filament_types()
+        form.filament_color.choices = [(color['id'], color['name']) for color in
+                                       get_filament_colors(int(form.filament_type.data)).json]
+        flash('variant updated successfully', 'success')
+    return render_template('variant_edit.html', form=form, page='category', VARIANT_ID=variant_id,
+                           FIGURE_ID=figure_id)
+
+
+@inventory.route('/variant/<variant_id>/delete', methods=['POST'])
+def variant_delete(variant_id):
+    variantInstance = Variant.query.get(variant_id)
+    delete_variant(variantInstance)
+    flash('variant deleted successfully', 'success')
+    return redirect(url_for('inventory_bp.categories_home'))

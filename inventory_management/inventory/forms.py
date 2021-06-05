@@ -31,10 +31,11 @@ class FilamentColorForm(FlaskForm):
 
 
 class VariantForm(FlaskForm):
+    figure_size = StringField('Size of the figure')
+    figure_name = SelectField('Name of the figure', choices=[])
     filament_type = SelectField('Type of filament used')
     filament_color = SelectField('Color of the filament used')
     comment = TextAreaField('Extra Comments', render_kw={"rows": 5, "cols": 50})
-    figure_size = StringField('Size of the figure')
     x_axis = IntegerField('Length of the figure')
     y_axis = IntegerField('Breadth of the breadth')
     z_axis = IntegerField('Height of the height')
@@ -45,4 +46,3 @@ class VariantForm(FlaskForm):
 class FigureForm(FlaskForm):
     figure_name = StringField('Name of the figure', [DataRequired()])
     category = SelectField('Category of the figure', choices=[])
-    variants = FieldList(FormField(VariantForm))

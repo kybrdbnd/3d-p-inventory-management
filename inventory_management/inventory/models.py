@@ -49,7 +49,7 @@ class Figure(db.Model):
     extras = db.Column(MutableDict.as_mutable(JSONB))
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
     items = db.relationship('Item', backref='figure', lazy=True)
-    variants = db.relationship('Variant', backref='figure', lazy=True)
+    variants = db.relationship('Variant', backref='figure', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return self.name

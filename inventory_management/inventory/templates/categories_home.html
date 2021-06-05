@@ -67,7 +67,103 @@
 
 
     <div class="row">
-        <a href="{{url_for('inventory_bp.figure_create')}}" class="btn btn-default">Create Figure</a>
+        <div class="col-md-3">
+            <a href="{{url_for('inventory_bp.figure_create')}}" class="btn btn-default">Create Figure</a>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="panel panel-default">
+            <table class="table">
+                <tr>
+                    <th>
+                        Figure Name
+                    </th>
+                    <th>
+                        Variants
+                    </th>
+                    <th>
+                        Actions
+                    </th>
+                </tr>
+
+                {% for figure in figures %}
+                <tr>
+                    <td>
+                        {{figure.name}}
+                    </td>
+                    <td>
+                        <ul>
+                            {% for variant in figure.variants %}
+                            <li>
+                                <a href="{{url_for('inventory_bp.variant_edit', figure_id=figure.id, variant_id=variant.id)}}">
+                                    {{variant.size}}
+                                </a>
+                                <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"
+                                      data-toggle="modal"
+                                      data-target="#variant-{{variant.id}}">
+                                </span>
+                                <div class="modal fade" id="variant-{{variant.id}}" tabindex="-1" role="dialog"
+                                     aria-labelledby="myModalLabel">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close"><span
+                                                        aria-hidden="true">&times;</span></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Do you want to delete the variant - {{variant.size}}?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <form action="/variant/{{variant.id}}/delete" method="post">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                        Close
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">Confirm</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <a href="{{url_for('inventory_bp.variant_create', figure_id=figure.id)}}"
+                           class="btn btn-default">Create Variant</a>
+                        <span class="glyphicon glyphicon-remove-sign" aria-hidden="true" data-toggle="modal"
+                              data-target="#figure-{{figure.id}}"></span>
+
+                        <div class="modal fade" id="figure-{{figure.id}}" tabindex="-1" role="dialog"
+                             aria-labelledby="myModalLabel">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close"><span
+                                                aria-hidden="true">&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Do you want to delete the figure?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form action="/figure/{{figure.id}}/delete" method="post">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">Confirm</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 </div>
 
