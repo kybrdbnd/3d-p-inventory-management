@@ -37,8 +37,8 @@ class VariantForm(FlaskForm):
     filament_color = SelectField('Color of the filament used')
     comment = TextAreaField('Extra Comments', render_kw={"rows": 5, "cols": 50})
     x_axis = IntegerField('Length of the figure')
-    y_axis = IntegerField('Breadth of the breadth')
-    z_axis = IntegerField('Height of the height')
+    y_axis = IntegerField('Breadth of the figure')
+    z_axis = IntegerField('Height of the figure')
     price = IntegerField('Cost of the figure')
     count = IntegerField('Count of the figure')
 
@@ -46,3 +46,13 @@ class VariantForm(FlaskForm):
 class FigureForm(FlaskForm):
     figure_name = StringField('Name of the figure', [DataRequired()])
     category = SelectField('Category of the figure', choices=[])
+
+
+class IdeasForm(FlaskForm):
+    name = StringField("Name of the idea", [DataRequired()])
+    filament_type = SelectField("Type of the filament", choices=[])
+    filament_color = SelectField("Color of the filament", choices=[])
+    comment = TextAreaField('Extra Comments', render_kw={"rows": 5, "cols": 50})
+    x_axis = IntegerField('Length of the figure')
+    y_axis = IntegerField('Breadth of the figure')
+    z_axis = IntegerField('Height of the figure')

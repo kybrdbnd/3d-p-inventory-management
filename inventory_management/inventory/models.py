@@ -24,6 +24,7 @@ class FilamentType(db.Model):
     name = db.Column(db.String(), nullable=False)
     filaments = db.relationship('Filament', backref='filament_type', lazy=True)
     variants = db.relationship('Variant', backref='filament_type', lazy=True)
+    ideas = db.relationship('Idea', backref='filament_type', lazy=True)
 
     def __repr__(self):
         return self.name
@@ -36,6 +37,7 @@ class Filament(db.Model):
     filament_type_id = db.Column(db.Integer, db.ForeignKey('filament_types.id'))
     price_per_gram = db.Column(db.Integer)
     variants = db.relationship('Variant', backref='filament_color', lazy=True)
+    ideas = db.relationship('Idea', backref='filament_color', lazy=True)
 
     def __repr__(self):
         return self.name
@@ -146,6 +148,24 @@ class Variant(db.Model):
 
     def __repr__(self):
         return self.size
+
+
+class Idea(db.Model):
+    __tablename__ = 'ideas'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String())
+    filament_type_id = db.Column(db.Integer, db.ForeignKey('filament_types.id'))
+    filament_color_id = db.Column(db.Integer, db.ForeignKey('filaments.id'))
+    comments = db.Column(db.Text())
+    created_on = db.Column(db.DateTime())
+    dimensions = db.Column(MutableDict.as_mutable(JSONB))
+
+    def __init__(self, **kwargs):
+        super(Idea, self).__init__(**kwargs)
+        self.created_on = datetime.now()
+
+    def __repr__(self):
+        return self.name
 
 
 if __name__ == '__main__':

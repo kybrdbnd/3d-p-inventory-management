@@ -9,12 +9,13 @@ from inventory_management.inventory.controller.categoryController import (create
 from inventory_management.inventory.controller.filamentController import (create_filament_type, delete_filament_type,
                                                                           update_filament_type, create_filament_color,
                                                                           update_filament_color, delete_filament_color)
+from inventory_management.inventory.controller.ideasController import create_ideas
 from inventory_management.inventory.controller.queryController import (estimate_cost,
                                                                        get_filaments, get_filament_types,
                                                                        save_query, delete_query, get_figures)
 from inventory_management.inventory.forms import QueryForm, CategoryForm, FilamentTypeForm, FilamentColorForm, \
-    FigureForm, VariantForm
-from inventory_management.inventory.models import FilamentType, Filament, Query, Category, Variant, Figure
+    FigureForm, VariantForm, IdeasForm
+from inventory_management.inventory.models import FilamentType, Filament, Query, Category, Variant, Figure, Idea
 from inventory_management.inventory.schema import filaments_schema, category_schema
 
 
@@ -298,3 +299,24 @@ def variant_delete(variant_id):
     delete_variant(variantInstance)
     flash('variant deleted successfully', 'success')
     return redirect(url_for('inventory_bp.categories_home'))
+
+
+@inventory.route('/ideas')
+def ideas_home():
+    ideas = Idea.query.all()
+    return render_template('ideas_home.html', ideas=ideas, page='ideas')
+
+
+@inventory.route('/ideas/create', methods=['GET', 'POST'])
+def ideas_create():
+    form = IdeasForm()
+    form.filament_type.choices = get_filament_types()
+    form.filament_color.choices = get_filaments(FilamentType.query.order_by('name').first())
+    if request.method == 'POST':
+        create_ideas(request.form)
+        form = IdeasForm(request.form)
+        form.filament_type.choices = get_filament_types()
+        form.filament_color.choices = get_filaments(FilamentType.query.order_by('name').first())
+        flash('Idea created successfully', 'success')
+        return redirect(url_for('inventory_bp.ideas_home'))
+    return render_template('ideas_edit.html', form=form, page='ideas')
