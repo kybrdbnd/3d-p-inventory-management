@@ -24,13 +24,13 @@
                 {% for idea in ideas %}
                 <tr>
                     <td>
-                        <a href="{{url_for('inventory_bp.category_edit', category_id=idea.id)}}">{{idea.id}}</a>
+                        <a href="{{url_for('inventory_bp.ideas_edit', idea_id=idea.id)}}">{{idea.id}}</a>
                     </td>
                     <td>
                         {{idea.name}}
                     </td>
                     <td>
-                        <a href="{{url_for('inventory_bp.category_edit', category_id=idea.id)}}">
+                        <a href="{{url_for('inventory_bp.ideas_edit', idea_id=idea.id)}}">
                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                         </a>
                         <span class="glyphicon glyphicon-remove-sign" aria-hidden="true" data-toggle="modal"

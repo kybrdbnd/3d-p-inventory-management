@@ -9,7 +9,7 @@ from inventory_management.inventory.controller.categoryController import (create
 from inventory_management.inventory.controller.filamentController import (create_filament_type, delete_filament_type,
                                                                           update_filament_type, create_filament_color,
                                                                           update_filament_color, delete_filament_color)
-from inventory_management.inventory.controller.ideasController import create_ideas
+from inventory_management.inventory.controller.ideasController import create_ideas, update_idea, delete_idea
 from inventory_management.inventory.controller.queryController import (estimate_cost,
                                                                        get_filaments, get_filament_types,
                                                                        save_query, delete_query, get_figures)
@@ -314,9 +314,37 @@ def ideas_create():
     form.filament_color.choices = get_filaments(FilamentType.query.order_by('name').first())
     if request.method == 'POST':
         create_ideas(request.form)
-        form = IdeasForm(request.form)
-        form.filament_type.choices = get_filament_types()
-        form.filament_color.choices = get_filaments(FilamentType.query.order_by('name').first())
         flash('Idea created successfully', 'success')
         return redirect(url_for('inventory_bp.ideas_home'))
     return render_template('ideas_edit.html', form=form, page='ideas')
+
+
+@inventory.route('/ideas/<idea_id>', methods=['GET', 'POST'])
+def ideas_edit(idea_id):
+    ideaInstance = Idea.query.get(idea_id)
+    form = IdeasForm()
+    form.name.data = ideaInstance.name
+    form.filament_type.choices = get_filament_types()
+    form.filament_type.data = str(ideaInstance.filament_type.id)
+    form.filament_color.choices = get_filaments(ideaInstance.filament_type)
+    form.filament_color.data = str(ideaInstance.filament_color.id)
+    form.comment.data = ideaInstance.comments
+    dimension = ideaInstance.dimensions
+    form.x_axis.data = dimension['x_axis']
+    form.y_axis.data = dimension['y_axis']
+    form.z_axis.data = dimension['z_axis']
+    if request.method == 'POST':
+        update_idea(idea_id, request.form)
+        form = IdeasForm(request.form)
+        form.filament_type.choices = get_filament_types()
+        form.filament_color.choices = get_filaments(FilamentType.query.get(request.form.get('filament_type')))
+        flash("idea updated successfully", "success")
+    return render_template('ideas_edit.html', form=form, IDEA_ID=idea_id, page='ideas')
+
+
+@inventory.route('/ideas/<idea_id>/delete', methods=['POST'])
+def ideas_delete(idea_id):
+    ideaInstance = Idea.query.get(idea_id)
+    delete_idea(ideaInstance)
+    flash("idea deleted successfully", "success")
+    return redirect(url_for('inventory_bp.ideas_home'))
