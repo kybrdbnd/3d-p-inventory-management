@@ -10,7 +10,7 @@ app = Flask(__name__)
 Bootstrap(app)
 
 app.config.update({
-    'SQLALCHEMY_DATABASE_URI': 'postgresql://postgres:root@localhost/inventory_management',
+    'SQLALCHEMY_DATABASE_URI': 'postgresql://postgres:postgres@localhost/inventory_management',
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     'SECRET_KEY': '234234243234243234234'
 })
